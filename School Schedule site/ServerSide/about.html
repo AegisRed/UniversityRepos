@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Про розробника</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="canvas-container">
+        <canvas id="canvas"></canvas>
+    </div>
+    <div class="container">
+        <h1>Про розробника</h1>
+        <div id="animated-text" class="animated-text"></div>
+                <div class="navigation-panel">
+                    <br>
+                    <br />
+        <button onclick="window.location.href='../index.html'">Головна</button> 
+        </div>
+    </div>
+    <script src="/JAVA/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const text = "Руссу Владислав Вадимович КН31";
+            let index = 0;
+            const element = document.getElementById('animated-text');
+            
+            function type() {
+                if (index < text.length) {
+                    element.innerHTML += text.charAt(index);
+                    index++;
+                    setTimeout(type, 100);
+                }
+            }
+
+            type();
+        });
+    </script>
+</body>
+</html>

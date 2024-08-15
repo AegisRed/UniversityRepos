@@ -1,127 +1,153 @@
-// Toggle dark mode
-function toggleTheme() {
-    document.body.classList.toggle('dark-mode');
-    updateCanvasColor();
-}
+document.addEventListener('DOMContentLoaded', (event) => {
+    const canvas = document.getElementById('canvas');
+    let ctx = null;
 
-function updateCanvasColor() {
-    if (document.body.classList.contains('dark-mode')) {
-        ctx.strokeStyle = 'white';
-    } else {
-        ctx.strokeStyle = 'black';
-    }
-}
-
-// Canvas animation
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const particlesArray = [];
-const numberOfParticles = 100;
-const mouse = {
-    x: null,
-    y: null,
-    radius: 150
-};
-
-window.addEventListener('mousemove', function(event) {
-    mouse.x = event.x;
-    mouse.y = event.y;
-});
-
-class Particle {
-    constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 5 + 1;
-        this.speedX = Math.random() * 3 - 1.5;
-        this.speedY = Math.random() * 3 - 1.5;
+    if (canvas) {
+        ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
 
-    update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
+    // Load theme from local storage
+    loadTheme();
 
-        if (this.x > canvas.width || this.x < 0) {
-            this.speedX *= -1;
+    // Toggle dark mode
+    function toggleTheme() {
+        document.body.classList.toggle('dark-mode');
+        const theme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+        updateCanvasColor();
+    }
+
+    function loadTheme() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark') {
+            document.body.classList.add('dark-mode');
+        } else {
+            document.body.classList.remove('dark-mode');
         }
+        updateCanvasColor();
+    }
 
-        if (this.y > canvas.height || this.y < 0) {
-            this.speedY *= -1;
+    function updateCanvasColor() {
+        if (ctx) {
+            ctx.strokeStyle = document.body.classList.contains('dark-mode') ? 'white' : 'black';
         }
     }
 
-    draw() {
-        ctx.fillStyle = 'white';
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.fill();
-    }
-}
+    if (canvas) {
+        const particlesArray = [];
+        const numberOfParticles = 100;
+        const mouse = {
+            x: null,
+            y: null,
+            radius: 150
+        };
 
-function init() {
-    for (let i = 0; i < numberOfParticles; i++) {
-        particlesArray.push(new Particle());
-    }
-}
+        window.addEventListener('mousemove', function (event) {
+            mouse.x = event.x;
+            mouse.y = event.y;
+        });
 
-function handleParticles() {
-    for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 5 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+            }
 
-        for (let j = i; j < particlesArray.length; j++) {
-            const dx = particlesArray[i].x - particlesArray[j].x;
-            const dy = particlesArray[i].y - particlesArray[j].y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
 
-            if (distance < 100) {
+                if (this.x > canvas.width || this.x < 0) {
+                    this.speedX *= -1;
+                }
+
+                if (this.y > canvas.height || this.y < 0) {
+                    this.speedY *= -1;
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = 'white';
                 ctx.beginPath();
-                ctx.lineWidth = 0.2;
-                ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
-                ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
-                ctx.stroke();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.closePath();
+                ctx.fill();
             }
         }
 
-        // Connect particles to mouse cursor
-        const dx = mouse.x - particlesArray[i].x;
-        const dy = mouse.y - particlesArray[i].y;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance < mouse.radius) {
-            ctx.beginPath();
-            ctx.lineWidth = 0.2;
-            ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
-            ctx.lineTo(mouse.x, mouse.y);
-            ctx.stroke();
-            ctx.closePath();
+        function init() {
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
         }
 
-        if (particlesArray[i].size <= 0.2) {
-            particlesArray.splice(i, 1);
-            i--;
+        function handleParticles() {
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+
+                for (let j = i; j < particlesArray.length; j++) {
+                    const dx = particlesArray[i].x - particlesArray[j].x;
+                    const dy = particlesArray[i].y - particlesArray[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.lineWidth = 0.2;
+                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                        ctx.stroke();
+                        ctx.closePath();
+                    }
+                }
+
+                // Connect particles to mouse cursor
+                const dx = mouse.x - particlesArray[i].x;
+                const dy = mouse.y - particlesArray[i].y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance < mouse.radius) {
+                    ctx.beginPath();
+                    ctx.lineWidth = 0.2;
+                    ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                    ctx.lineTo(mouse.x, mouse.y);
+                    ctx.stroke();
+                    ctx.closePath();
+                }
+
+                if (particlesArray[i].size <= 0.2) {
+                    particlesArray.splice(i, 1);
+                    i--;
+                }
+            }
         }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            handleParticles();
+            requestAnimationFrame(animate);
+        }
+
+        init();
+        animate();
+
+        window.addEventListener('resize', function () {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particlesArray.length = 0;
+            init();
+        });
     }
-}
 
-function animate() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    handleParticles();
-    requestAnimationFrame(animate);
-}
+    // Add event listener to toggle button
+    const themeToggleButton = document.getElementById('themeToggle');
+    if (themeToggleButton) {
+        themeToggleButton.addEventListener('click', toggleTheme);
+    }
 
-init();
-animate();
-updateCanvasColor();
-
-window.addEventListener('resize', function() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    particlesArray.length = 0;
-    init();
 });

@@ -1,8 +1,9 @@
 {
   "ExpandedNodes": [
     "",
-    "\\java"
+    "\\java",
+    "\\php"
   ],
-  "SelectedNode": "\\index.html",
+  "SelectedNode": "\\php\\table.php",
   "PreviewInSolutionExplorer": false
 }
